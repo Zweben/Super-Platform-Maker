@@ -42,8 +42,8 @@ class Grid {
             for (var row = 0; row < this.height; row++) {
                 // For each grid column
                 for (var col = 0; col < this.width; col++) {
-                    var xGridCellPos = (size * col) - Math.floor(this.xScrollPos);
-                    var yGridCellPos = (size * row) - Math.floor(this.yScrollPos);
+                    var xGridCellPos = (size * col) - Math.floor(this.xScrollPos) * pixelRatio;
+                    var yGridCellPos = (size * row) - Math.floor(this.yScrollPos) * pixelRatio;
 
                     // Adjust values based on PPI setting
                     xGridCellPos = pixelRatio * Math.floor(xGridCellPos / pixelRatio);
