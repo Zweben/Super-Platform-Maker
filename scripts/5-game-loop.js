@@ -29,6 +29,13 @@ function calcCollision(a, b) {
         // If Objects are also projected to align vertically next frame
         if (aRightPosProj > bLeftPosProj && aLeftPosProj < bRightPosProj) {
 
+            // Skip collision testing if
+            // the first object is anchored
+            // (not sure if this is a good idea yet)
+            if (objA.anchored) {
+                return;
+            }
+
             // The Objects are projected to collied.
             // Only stop their x-axis motion if they 
             // already overlap on the x-axis by more than 1px.
@@ -79,15 +86,23 @@ function calcCollision(a, b) {
 function placeObject() {
 
     // Create a new instance of an object
-    var block = new Block();
-    block.xPos = hoveredCol * grid.size;
-    block.yPos = hoveredRow * grid.size;
-    objects.push(block);
-
-    console.log("new object placed at " + hoveredRow + ", " + hoveredCol)
+    var objectToPlace = new levelObjectTypes[selectedObjectType];
+    objectToPlace.xPos = hoveredCol * grid.size;
+    objectToPlace.yPos = hoveredRow * grid.size;
+    objects.push(objectToPlace);
 
     // Save a reference to this object instance in the levelData
-    grid.levelData[hoveredRow][hoveredCol].push(block);
+    grid.levelData[hoveredRow][hoveredCol].push(objectToPlace);
+
+    console.log(grid.levelData[0][0]);
+
+    // Compress the level data
+    var levelDataString = JSON.stringify(grid.levelData[0][0]);
+    var compressedLevel = LZString.compress(levelDataString);
+
+    // Store the level data
+    localStorage.storedLevel = compressedLevel;
+
 
 }
 

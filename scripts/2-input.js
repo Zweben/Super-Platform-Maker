@@ -51,8 +51,10 @@ function handlePressedKeys() {
                 highPpiEnabled = true;
                 initializeCanvas();
                 break;
-        }
 
+            case "0":
+                
+        }
     }
 }
 

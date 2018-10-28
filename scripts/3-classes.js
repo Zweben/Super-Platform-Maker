@@ -10,7 +10,7 @@ class Grid {
         this.size = 16;
         this.width = 256;
         this.height = 128;
-        this.levelData = [[[]]];
+        this.levelData = storedLevel;
         this.xScrollPos = 0;
         this.yScrollPos = 0;
         this.initialize = function() {
@@ -192,6 +192,18 @@ class Block extends Object {
 
 }
 
+class Goal extends Object {
+    constructor() {
+        super();
+        this.color = "purple";
+        this.anchored = true;
+    }
+    update() {
+        super.update();
+    }
+
+}
+
 class Player extends Object {
     constructor() {
         super();
@@ -285,3 +297,6 @@ class Player extends Object {
         }
     }
 }
+
+
+var levelObjectTypes = [Block,Goal];

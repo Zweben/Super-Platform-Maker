@@ -26,6 +26,9 @@ var highPpiEnabled = true;
 var hoveredRow;
 var hoveredCol;
 var mouseDown = false;
+var selectedObjectType = 0;
+var storedLevel = [[[]]];
+
 
 //http://bl.ocks.org/devgru/a9428ebd6e11353785f2
 function getRetinaRatio() {
@@ -81,4 +84,20 @@ function initializeCanvas() {
     initialized = true;   
     console.log("canvas initialized at pixel ratio " + pixelRatio);
 
+}
+
+
+if (typeof(Storage) !== "undefined") {
+    
+    if (localStorage.storedLevel !== undefined) {
+
+        var decompressedLevelData = LZString.decompress(localStorage.storedLevel);
+
+        console.log(decompressedLevelData);
+
+        storedLevel = JSON.parse(decompressedLevelData);
+    }
+
+} else {
+    // Sorry! No Web Storage support.
 }
