@@ -116,6 +116,7 @@ class Object {
         this.yForce = 0;
         this.xPushing = 0;
         this.yPushing = 0;
+        this.yPushingFrames = 0;
         this.mass = 5;
         this.xAccel = 0;
         this.yAccel = 0;
@@ -131,7 +132,9 @@ class Object {
         this.yForce = 0;
         // Add any pushing (walking) forces to total forces
         this.xForce += this.xPushing;
-        this.yForce += this.yPushing;
+        if (this.yPushingFrames < 8) {
+            this.yForce += this.yPushing;
+        }
         // Reset any pushing values every frame
         this.xPushing = 0;
         this.yPushing = 0;
@@ -159,10 +162,18 @@ class Object {
         this.yMomentum = this.ySpeed * this.mass;
 
         this.touchingObjects = [];
+
+        if (this instanceof Player) {
+            if (!pressedKeys.includes("ArrowUp")) {
+                //console.log(this.yPushingFrames);
+            }
+        }
+
+        this.yPushingFrames++;
     };
     draw() {
-        var xObjectPos = this.xPos - grid.xScrollPos * pixelRatio;
-        var yObjectPos = this.yPos - grid.yScrollPos * pixelRatio;
+        var xObjectPos = this.xPos - grid.xScrollPos ;
+        var yObjectPos = this.yPos - grid.yScrollPos ;
 
         ctx.fillStyle = this.color;
         ctx.fillRect(xObjectPos * pixelRatio, yObjectPos * pixelRatio, this.width * pixelRatio, this.height * pixelRatio);

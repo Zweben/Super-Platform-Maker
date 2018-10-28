@@ -12,23 +12,30 @@ $(document).keyup(function(e) {
     var index = pressedKeys.indexOf(e.key);
     // Remove this key from the array
     pressedKeys.splice(index, 1);
+
+    switch(e.key) {
+        case "ArrowUp":
+            player.yPushingFrames = NaN;
+            break;
+    }
+
 });
 
 function handlePressedKeys() {
     for (var i=0; i<pressedKeys.length; i++) {
 
         switch(pressedKeys[i]) {
-            case "ArrowLeft":
-                player.xPushing = -1
-                break;
             case "ArrowUp":
-                player.yPushing = 1;
+                player.yPushing = 10;
                 break;
             case "ArrowRight":
                 player.xPushing = 1;
                 break;
             case "ArrowDown":
-                player.yPushing = -1;
+                //player.yPushing = -1;
+                break;
+            case "ArrowLeft":
+                player.xPushing = -1;
                 break;
             case "e":
                 gameMode = "edit";

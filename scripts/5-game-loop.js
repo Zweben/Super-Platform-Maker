@@ -1,30 +1,3 @@
-function addRandomBlocks() {
-
-    // For each grid column
-    for (var col = 0; col < grid.width; col++) {
-
-        if (col % 5 != 0) {
-            continue;
-        }
-
-        var randomBlock = new Object();
-
-        randomBlock.xPos = col * grid.size;
-        randomBlock.yPos = Math.floor(Math.random() * (grid.height-5)) * grid.size + (grid.size*5);
-
-        randomBlock.color = "brown";
-
-        randomBlock.anchored = true;
-        
-        objects.push(randomBlock);
-    }
-
-}
-
-addRandomBlocks();
-
-
-
 
 
 function calcCollision(a, b) {
@@ -78,7 +51,19 @@ function calcCollision(a, b) {
                 objB.yPos += objB.ySpeed;
     
                 objA.ySpeed = 0;
-                objB.ySpeed = 0;  
+                objB.ySpeed = 0;
+
+                // If the player has hit their pushingFrames limit
+                // and has let go of the up arrow
+                if (!pressedKeys.includes("ArrowUp")) {
+                    if (objA instanceof Player) {
+                        objA.yPushingFrames = 0;
+                    }
+    
+                    if (objB instanceof Player) {
+                        objB.yPushingFrames = 0;
+                    }
+                }
 
                 objA.touchingObjects.push(b);
                 objB.touchingObjects.push(a);
@@ -107,7 +92,7 @@ function placeObject() {
 }
 
 
-function gameLoop(timestamp) {
+function gameLoop() {
 
     handlePressedKeys();
 
