@@ -1,102 +1,160 @@
-class GridCell {
+class World {
     constructor() {
-        this.isHovered = false;
-        this.contains = [];
-    }
-}
-
-class Grid {
-    constructor() {
-        this.size = 16;
+        this.cellSize = 16;
         this.width = 256;
         this.height = 128;
-        this.levelData = storedLevel;
         this.xScrollPos = 0;
         this.yScrollPos = 0;
+        this.initialized = false;
         this.initialize = function() {
 
-            // For each grid row
-            for (var row = 0; row < this.height; row++) {
+            // Clear out the objects from the previous state of the level
+            // Probably safer than updating the array in case anything changed
+            objects = [];
 
-                if (this.levelData[row] == undefined) {
-                    this.levelData.push([]);
+            // Create default objects that aren't in the level data
+            objects.push(player);
+            
+            ground.color = "green";
+            ground.mass = 10;
+            ground.width = 1000;
+            ground.height = 50;
+            ground.xPos = 0;
+            ground.yPos = 300;
+            ground.anchored = true;
+            objects.push(ground);
+
+            
+
+            var levelDataIsValid = false;
+
+            // Check if the stored level data is valid
+            // to-do: put real level data validation here
+            if (levelData != undefined && levelData.length > 0) {
+                levelDataIsValid = true;
+            }
+
+            if (levelDataIsValid) {
+                // Create the level from the data
+                // or let other code handle that and do nothing?
+                for (var row = 0; row < this.height; row++) {
+                    for (var col = 0; col < this.width; col++) {
+                        
+                        if(levelData[row][col].objects.includes("block")) {
+
+                            var block = new Block;
+                            var xPos = col * world.cellSize;
+                            var yPos = row * world.cellSize;
+
+                            block.xPos = xPos;
+                            block.yPos = yPos;
+
+                            objects.push(block);
+
+                            this.initialized = false;
+
+                        }
+
+                    }
                 }
 
-                // For each grid column
-                for (var col = 0; col < this.width; col++) {
+            }
 
-                    if (this.levelData[row][col] == undefined) {
-                        this.levelData[row].push([]);
+            else {
+                // For each world row
+                for (var row = 0; row < this.height; row++) {
+
+                    // Create the levelData row if it doesn't exist
+                    if (levelData[row] == undefined) {
+                        levelData.push([]);
                     }
 
-                    this.levelData[row][col].push(new GridCell());
+                    // For each world column
+                    for (var col = 0; col < this.width; col++) {
+
+                        // Create the levelData column if it doesn't exist
+                        if (levelData[row][col] == undefined) {
+                            levelData[row].push([]);
+                        }
+
+                        levelData[row][col] = {
+                            isHovered: false,
+                            objects: []
+                        }
+                    }
                 }
             }
 
+            this.initialized = true;
         }
         this.draw = function () {
 
-            var size = this.size * pixelRatio;
+            var cellSize = this.cellSize * pixelRatio;
 
-            // For each grid row
+            // For each world row
             for (var row = 0; row < this.height; row++) {
-                // For each grid column
+                // For each world column
                 for (var col = 0; col < this.width; col++) {
-                    var xGridCellPos = (size * col) - Math.floor(this.xScrollPos) * pixelRatio;
-                    var yGridCellPos = (size * row) - Math.floor(this.yScrollPos) * pixelRatio;
+                    var xWorldCellPos = (cellSize * col) - Math.floor(this.xScrollPos) * pixelRatio;
+                    var yworldCellPos = (cellSize * row) - Math.floor(this.yScrollPos) * pixelRatio;
 
                     // Adjust values based on PPI setting
-                    xGridCellPos = pixelRatio * Math.floor(xGridCellPos / pixelRatio);
-                    yGridCellPos = pixelRatio * Math.floor(yGridCellPos / pixelRatio);
+                    xWorldCellPos = pixelRatio * Math.floor(xWorldCellPos / pixelRatio);
+                    yworldCellPos = pixelRatio * Math.floor(yworldCellPos / pixelRatio);
 
-
+                    // Track if the mouse aligns with the current row/col
                     var mouseAlignsOnX = false;
                     var mouseAlignsOnY = false;
 
-                    if (xMousePos > xGridCellPos) {
-                        if (xMousePos < xGridCellPos + size) {
+                    // Check if the mouse aligns on x with the curernt cell
+                    if (xMousePos > xWorldCellPos) {
+                        if (xMousePos < xWorldCellPos + cellSize) {
                             mouseAlignsOnX = true;
                         }
                     }
 
-                    if (yMousePos > yGridCellPos) {
-                        if (yMousePos < yGridCellPos + size) {
+                    // Check if the mouse aligns on y with the curernt cell
+                    if (yMousePos > yworldCellPos) {
+                        if (yMousePos < yworldCellPos + cellSize) {
                             mouseAlignsOnY = true;
                         }
                     }
 
-                    var currentGridCell = this.levelData[row][col][0];
-
-                    if (mouseAlignsOnX && mouseAlignsOnY) {
-                        currentGridCell.isHovered = true;
-                        hoveredRow = row;
-                        hoveredCol = col;
+                    if (world.initialized == false) {
+                        world.initialize();
                     }
 
-                    ctx.fillStyle = "#ddd";
+                    // Store the current level cell data to the world
+                    var currentWorldCell = levelData[row][col];
 
-                    // If we're a hovered grid cell
-                    // fill in top and left edges
-                    if (currentGridCell.isHovered == true) {
+                    // If the mouse is over the current cell
+                    if (mouseAlignsOnX && mouseAlignsOnY) {
+                        currentWorldCell.isHovered = true;
+                        hoveredRow = row;
+                        hoveredCol = col;
+
                         ctx.fillStyle = "#000";
+                    }
+                    else {
+                        ctx.fillStyle = "#ddd";
                     }
 
                     ctx.lineWidth = 2;
 
 
                     // Left edge
-                    ctx.fillRect(xGridCellPos, yGridCellPos, 1, size);
+                    ctx.fillRect(xWorldCellPos, yworldCellPos, 1, cellSize);
 
                     // Right edge
-                    ctx.fillRect(xGridCellPos + size-2, yGridCellPos, 1, size);
+                    ctx.fillRect(xWorldCellPos + cellSize-2, yworldCellPos, 1, cellSize);
 
                     // Top edge
-                    ctx.fillRect(xGridCellPos, yGridCellPos, size, 1);
+                    ctx.fillRect(xWorldCellPos, yworldCellPos, cellSize, 1);
 
                     // Bottom edge
-                    ctx.fillRect(xGridCellPos, yGridCellPos + size-2, size, 1);
+                    ctx.fillRect(xWorldCellPos, yworldCellPos + cellSize-2, cellSize, 1);
 
-                    currentGridCell.isHovered = false;
+                    //currentWorldCell.isHovered = false;
 
                 }
             }
@@ -106,8 +164,8 @@ class Grid {
 
 class Object {
     constructor() {
-        this.width = grid.size;
-        this.height = grid.size;
+        this.width = world.cellSize;
+        this.height = world.cellSize;
         this.color = "skyblue";
         this.anchored = false;
         this.xPos = 0;
@@ -165,15 +223,15 @@ class Object {
 
         if (this instanceof Player) {
             if (!pressedKeys.includes("ArrowUp")) {
-                //console.log(this.yPushingFrames);
+
             }
         }
 
         this.yPushingFrames++;
     };
     draw() {
-        var xObjectPos = this.xPos - grid.xScrollPos ;
-        var yObjectPos = this.yPos - grid.yScrollPos ;
+        var xObjectPos = this.xPos - world.xScrollPos ;
+        var yObjectPos = this.yPos - world.yScrollPos ;
 
         ctx.fillStyle = this.color;
         ctx.fillRect(xObjectPos * pixelRatio, yObjectPos * pixelRatio, this.width * pixelRatio, this.height * pixelRatio);
@@ -214,7 +272,7 @@ class Player extends Object {
     update() {
         super.update();
 
-        this.xScreenPos = this.xPos - grid.xScrollPos;
+        this.xScreenPos = this.xPos - world.xScrollPos;
 
 
         var leftSoftScrollPos = 250;
@@ -230,17 +288,17 @@ class Player extends Object {
 
         // Set a global scroll speed multipler based on how much
         // the player intrudes into the levelEdgeSoftScrollDistance
-        if (grid.xScrollPos < levelEdgeSoftScrollDistance) {
-            var softScrollPixels = levelEdgeSoftScrollDistance - grid.xScrollPos;
+        if (world.xScrollPos < levelEdgeSoftScrollDistance) {
+            var softScrollPixels = levelEdgeSoftScrollDistance - world.xScrollPos;
             globalScrollSpeedMultipler = softScrollPixels.map(0, levelEdgeSoftScrollDistance, 1, 0.5);
         }
-        else if (grid.width - grid.xScrollPos < levelEdgeSoftScrollDistance) {
-            var softScrollPixels = levelEdgeSoftScrollDistance - (grid.width - grid.xScrollPos);
+        else if (world.width - world.xScrollPos < levelEdgeSoftScrollDistance) {
+            var softScrollPixels = levelEdgeSoftScrollDistance - (world.width - world.xScrollPos);
             globalScrollSpeedMultipler = softScrollPixels.map(0, levelEdgeSoftScrollDistance, 1, 0.5);
         }
 
         // Don't scroll the screen if at the level's edge
-        if (grid.xScrollPos >= 0) {
+        if (world.xScrollPos >= 0) {
 
             // If the player is on the left of the screen
             if (this.xScreenPos < leftSoftScrollPos ) {
@@ -253,7 +311,7 @@ class Player extends Object {
                     var howFarLeft = this.xScreenPos - leftSoftScrollPos;
                     var scrollRate = howFarLeft * 0.1 * globalScrollSpeedMultipler;
 
-                    grid.xScrollPos += Math.abs(scrollRate) * -1;
+                    world.xScrollPos += Math.abs(scrollRate) * -1;
 
                 }
                 // If the player is very far towards the left
@@ -262,7 +320,7 @@ class Player extends Object {
                     var scrollRate = player.xSpeed * globalScrollSpeedMultipler;
 
                     // scroll the screen as fast as they're moving
-                    grid.xScrollPos += Math.abs(scrollRate) * -1;
+                    world.xScrollPos += Math.abs(scrollRate) * -1;
                 }
 
             }
@@ -270,7 +328,7 @@ class Player extends Object {
         }
 
         // Don't scroll the screen if at the level's edge
-        if (grid.xScrollPos <= grid.width) {
+        if (world.xScrollPos <= world.width) {
 
             // If the player is on the right of the screen
             if (this.xScreenPos > rightSoftScrollPos) {
@@ -283,14 +341,14 @@ class Player extends Object {
                     var howFarRight = this.xScreenPos - rightSoftScrollPos;
                     var scrollRate = howFarRight * 0.1 * globalScrollSpeedMultipler;
 
-                    grid.xScrollPos += scrollRate;
+                    world.xScrollPos += scrollRate;
                 }
                 // If the player is very far towards the right
                 else {
                     var scrollRate = player.xSpeed * globalScrollSpeedMultipler;
 
                     // scroll the screen as fast as they're moving
-                    grid.xScrollPos += scrollRate;
+                    world.xScrollPos += scrollRate;
                 }
 
             }

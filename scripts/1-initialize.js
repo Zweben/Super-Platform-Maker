@@ -10,10 +10,10 @@ Number.prototype.map = function (in_min, in_max, out_min, out_max) {
 var width = 640;
 var height = 360;
 var scaledWidth, scaledHeight;
-var initialized = false;
+var canvasInitialized = false;
 var canvas, blurredCanvas;
 var ctx, blurredCtx;
-var gameMode = "play";
+var gameMode = "edit";
 var pressedKeys = [];
 var objects = [];
 var gravity = 0.3;
@@ -27,8 +27,13 @@ var hoveredRow;
 var hoveredCol;
 var mouseDown = false;
 var selectedObjectType = 0;
-var storedLevel = [[[]]];
+var storedLevel = [[]];
+var levelData = [];
 
+var logging = {
+    canvas: false,
+    localStorage: false
+}
 
 //http://bl.ocks.org/devgru/a9428ebd6e11353785f2
 function getRetinaRatio() {
@@ -47,7 +52,7 @@ function getRetinaRatio() {
 }
 
 
-// Initialize the canvas
+// Initialize the canvas after DOM ready
 $(function(){
     initializeCanvas();
 });
@@ -81,8 +86,11 @@ function initializeCanvas() {
 
     //ctx.scale(pixelRatio,pixelRatio);
 
-    initialized = true;   
-    console.log("canvas initialized at pixel ratio " + pixelRatio);
+    canvasInitialized = true;
+
+    if (logging.canvas === true) {
+        console.log("canvas initialized at pixel ratio " + pixelRatio);
+    }
 
 }
 
@@ -93,9 +101,11 @@ if (typeof(Storage) !== "undefined") {
 
         var decompressedLevelData = LZString.decompress(localStorage.storedLevel);
 
-        console.log(decompressedLevelData);
+        if (logging.localData == true) {
+            console.log(decompressedLevelData);
+        }
 
-        storedLevel = JSON.parse(decompressedLevelData);
+        levelData = JSON.parse(decompressedLevelData);
     }
 
 } else {

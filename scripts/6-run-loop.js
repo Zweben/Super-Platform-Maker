@@ -1,6 +1,6 @@
 
 function runLoop() {
-    if (initialized) {
+    if (canvasInitialized) {
         gameLoop();
     }
 }

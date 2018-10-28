@@ -85,27 +85,25 @@ function calcCollision(a, b) {
 
 function placeObject() {
 
-    // Create a new instance of an object
-    var objectToPlace = new levelObjectTypes[selectedObjectType];
-    objectToPlace.xPos = hoveredCol * grid.size;
-    objectToPlace.yPos = hoveredRow * grid.size;
-    objects.push(objectToPlace);
+    currentLevelDataCell = levelData[hoveredRow][hoveredCol];
 
-    // Save a reference to this object instance in the levelData
-    grid.levelData[hoveredRow][hoveredCol].push(objectToPlace);
+    currentLevelDataCell.objects.push("block");
 
-    console.log(grid.levelData[0][0]);
+    world.initialized = false;
+
 
     // Compress the level data
-    var levelDataString = JSON.stringify(grid.levelData[0][0]);
+    var levelDataString = JSON.stringify(levelData);
     var compressedLevel = LZString.compress(levelDataString);
 
     // Store the level data
     localStorage.storedLevel = compressedLevel;
 
-
+    // Output the stored level data in the console
+    if (logging.localStorage == true) {
+        console.log(JSON.parse(LZString.decompress(localStorage.storedLevel)));
+    }
 }
-
 
 function gameLoop() {
 
@@ -113,8 +111,12 @@ function gameLoop() {
 
     ctx.clearRect(0,0,width*pixelRatio,height*pixelRatio);
 
-    // Draw the grid
-    grid.draw();
+    if (world.initialized == false) {
+        world.initialize();
+    }
+
+    // Draw the world
+    world.draw();
 
     // Track which objects are already fully collided
     var fullyCheckedIndex = 0;
