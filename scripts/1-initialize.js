@@ -9,6 +9,7 @@ Number.prototype.map = function (in_min, in_max, out_min, out_max) {
 // these are evil, get rid of them
 var width = 640;
 var height = 360;
+
 var scaledWidth, scaledHeight;
 var canvasInitialized = false;
 var canvas, blurredCanvas;
@@ -18,7 +19,6 @@ var pressedKeys = [];
 var objects = [];
 var gravity = 0.3;
 var airResistance = .9;
-var loops = 1;
 var xMousePos = 0;
 var yMousePos = 0;
 var pixelRatio = 1;
@@ -29,11 +29,29 @@ var mouseDown = false;
 var selectedObjectType = 0;
 var storedLevel = [[]];
 var levelData = [];
+var paused = false;
 
 var logging = {
     canvas: false,
     localStorage: false
 }
+
+
+var frames = 1;
+var startTime = new Date();
+var elapsedMillis;
+var averageFramerate;
+
+
+var drawAreas = {
+    toolbar: [0, width, 48, 0],
+    world: [48,630,300,10],
+};
+
+
+
+
+
 
 //http://bl.ocks.org/devgru/a9428ebd6e11353785f2
 function getRetinaRatio() {

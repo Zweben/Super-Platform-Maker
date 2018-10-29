@@ -13,17 +13,9 @@ class World {
             objects = [];
 
             // Create default objects that aren't in the level data
+            player.objectsArrayIndex = objects.length;
             objects.push(player);
             
-            ground.color = "green";
-            ground.mass = 10;
-            ground.width = 1000;
-            ground.height = 50;
-            ground.xPos = 0;
-            ground.yPos = 300;
-            ground.anchored = true;
-            objects.push(ground);
-
             
 
             var levelDataIsValid = false;
@@ -48,6 +40,7 @@ class World {
 
                             block.xPos = xPos;
                             block.yPos = yPos;
+                            block.objectsArrayIndex = objects.length;
 
                             objects.push(block);
 
@@ -143,18 +136,13 @@ class World {
 
 
                     // Left edge
-                    ctx.fillRect(xWorldCellPos, yworldCellPos, 1, cellSize);
-
+                    drawWithinArea("world","fillRect",xWorldCellPos, yworldCellPos, 1, cellSize);
                     // Right edge
-                    ctx.fillRect(xWorldCellPos + cellSize-2, yworldCellPos, 1, cellSize);
-
+                    drawWithinArea("world","fillRect",xWorldCellPos + cellSize-2, yworldCellPos, 1, cellSize);
                     // Top edge
-                    ctx.fillRect(xWorldCellPos, yworldCellPos, cellSize, 1);
-
+                    drawWithinArea("world","fillRect",xWorldCellPos, yworldCellPos, cellSize, 1);
                     // Bottom edge
-                    ctx.fillRect(xWorldCellPos, yworldCellPos + cellSize-2, cellSize, 1);
-
-                    //currentWorldCell.isHovered = false;
+                    drawWithinArea("world","fillRect",xWorldCellPos, yworldCellPos, cellSize, 1);
 
                 }
             }
@@ -183,6 +171,7 @@ class Object {
         this.xMomentum = 0;
         this.yMomentum = 0;
         this.touchingObjects = [];
+        this.objectsArrayIndex;
     }
     update() {
         // Forces are re-calculated every frame
@@ -212,20 +201,24 @@ class Object {
         // Calculate speed from prev speed and accel
         this.xSpeed += this.xAccel;
         this.ySpeed += this.yAccel;
+        // Calculate momentum from mass and speed
+        //this.xMomentum = this.xSpeed * this.mass;
+        //this.yMomentum = this.ySpeed * this.mass;
+
+        // For every object
+        for (var i=0; i<objects.length; i++) {
+
+            if (i !== this.objectsArrayIndex) {
+                calcCollision(i,this.objectsArrayIndex);
+            }
+
+        }
+        
         // Calculate pos from prev pos and speed
         this.xPos += this.xSpeed;
         this.yPos -= this.ySpeed;
-        // Calculate momentum from mass and speed
-        this.xMomentum = this.xSpeed * this.mass;
-        this.yMomentum = this.ySpeed * this.mass;
 
         this.touchingObjects = [];
-
-        if (this instanceof Player) {
-            if (!pressedKeys.includes("ArrowUp")) {
-
-            }
-        }
 
         this.yPushingFrames++;
     };
@@ -234,7 +227,9 @@ class Object {
         var yObjectPos = this.yPos - world.yScrollPos ;
 
         ctx.fillStyle = this.color;
-        ctx.fillRect(xObjectPos * pixelRatio, yObjectPos * pixelRatio, this.width * pixelRatio, this.height * pixelRatio);
+        //ctx.fillRect(xObjectPos * pixelRatio, yObjectPos * pixelRatio, this.width * pixelRatio, this.height * pixelRatio);
+        drawWithinArea("world","fillRect",xObjectPos * pixelRatio, yObjectPos * pixelRatio, this.width * pixelRatio, this.height * pixelRatio);
+
     };
 }
 
