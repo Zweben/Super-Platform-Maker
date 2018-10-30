@@ -44,7 +44,7 @@ var averageFramerate;
 
 
 var drawAreas = {
-    toolbar: [0, width, 48, 0],
+    toolbar: [0, width, 47, 0],
     world: [48,630,300,10],
 };
 
@@ -100,8 +100,7 @@ function initializeCanvas() {
     canvas[0].width = scaledWidth;
     canvas[0].height = scaledHeight;
 
-    ctx = canvas[0].getContext('2d');
-
+    ctx = canvas[0].getContext('2d');canvas.offsetTop
     //ctx.scale(pixelRatio,pixelRatio);
 
     canvasInitialized = true;

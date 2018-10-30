@@ -57,6 +57,11 @@ class World {
                 // For each world row
                 for (var row = 0; row < this.height; row++) {
 
+                    // Create levelData if it doesn't exist
+                    if (levelData == undefined) {
+                        levelData = [];
+                    }
+
                     // Create the levelData row if it doesn't exist
                     if (levelData[row] == undefined) {
                         levelData.push([]);
@@ -82,18 +87,18 @@ class World {
         }
         this.draw = function () {
 
-            var cellSize = this.cellSize * pixelRatio;
+            var cellSize = this.cellSize;
 
             // For each world row
             for (var row = 0; row < this.height; row++) {
                 // For each world column
                 for (var col = 0; col < this.width; col++) {
-                    var xWorldCellPos = (cellSize * col) - Math.floor(this.xScrollPos) * pixelRatio;
-                    var yworldCellPos = (cellSize * row) - Math.floor(this.yScrollPos) * pixelRatio;
+                    var xWorldCellPos = (cellSize * col) - Math.floor(this.xScrollPos);
+                    var yworldCellPos = (cellSize * row) - Math.floor(this.yScrollPos);
 
                     // Adjust values based on PPI setting
-                    xWorldCellPos = pixelRatio * Math.floor(xWorldCellPos / pixelRatio);
-                    yworldCellPos = pixelRatio * Math.floor(yworldCellPos / pixelRatio);
+                    xWorldCellPos = Math.floor(xWorldCellPos);
+                    yworldCellPos = Math.floor(yworldCellPos);
 
                     // Track if the mouse aligns with the current row/col
                     var mouseAlignsOnX = false;
@@ -136,13 +141,13 @@ class World {
 
 
                     // Left edge
-                    drawWithinArea("world","fillRect",xWorldCellPos, yworldCellPos, 1, cellSize);
+                    drawWithinArea("world","fillRect",xWorldCellPos, yworldCellPos, 1/pixelRatio, cellSize);
                     // Right edge
-                    drawWithinArea("world","fillRect",xWorldCellPos + cellSize-2, yworldCellPos, 1, cellSize);
+                    drawWithinArea("world","fillRect",xWorldCellPos + cellSize - 0.5, yworldCellPos, 1/pixelRatio, cellSize);
                     // Top edge
-                    drawWithinArea("world","fillRect",xWorldCellPos, yworldCellPos, cellSize, 1);
+                    drawWithinArea("world","fillRect",xWorldCellPos, yworldCellPos, cellSize, 1/pixelRatio);
                     // Bottom edge
-                    drawWithinArea("world","fillRect",xWorldCellPos, yworldCellPos, cellSize, 1);
+                    drawWithinArea("world","fillRect",xWorldCellPos, yworldCellPos + cellSize - 0.5, cellSize, 1/pixelRatio);
 
                 }
             }
@@ -227,8 +232,8 @@ class Object {
         var yObjectPos = this.yPos - world.yScrollPos ;
 
         ctx.fillStyle = this.color;
-        //ctx.fillRect(xObjectPos * pixelRatio, yObjectPos * pixelRatio, this.width * pixelRatio, this.height * pixelRatio);
-        drawWithinArea("world","fillRect",xObjectPos * pixelRatio, yObjectPos * pixelRatio, this.width * pixelRatio, this.height * pixelRatio);
+        //ctx.fillRect(xObjectPos, yObjectPos, this.width, this.height);
+        drawWithinArea("world","fillRect",xObjectPos, yObjectPos, this.width, this.height);
 
     };
 }

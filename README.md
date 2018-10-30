@@ -8,9 +8,10 @@ Super Platform Maker is a 2D platformer with a built-in level editor. You can pl
     - Block
     - Goal
 - More fun than a trip to the dentist
+- Lvel saving/loading via Local Storage
 
 ## Shorter-term goals
-- Enable saving/loading levels via Local Storage
+- Add support for sliding along a flat surface
 - Add a level editing UI
 - Add a level success screen
 - Add a level timer (countdown & elapsed)

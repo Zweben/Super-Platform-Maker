@@ -52,7 +52,9 @@ function handlePressedKeys() {
                 initializeCanvas();
                 break;
 
-            case "0":
+            case "s":
+                saveLevel();
+                break;
                 
         }
     }
@@ -64,8 +66,8 @@ $(window).mousemove(function (e) {
         placeObject();
     }
 
-    xMousePos = e.clientX * pixelRatio;
-    yMousePos = e.clientY * pixelRatio;
+    xMousePos = (e.clientX) - (drawAreas.world[3]) - ($('canvas')[0].offsetLeft);
+    yMousePos = (e.clientY) - (drawAreas.world[0]) - ($('canvas')[0].offsetTop);
 
 });
 

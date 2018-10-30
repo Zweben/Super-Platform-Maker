@@ -6,13 +6,15 @@ function gameLoop() {
         return;
     }
 
+    updateToolbar();
+
     elapsedMillis =  new Date() - startTime;
     //console.log(elapsedMillis/frames);
 
     handlePressedKeys();
 
-    //ctx.clearRect(0,0,width*pixelRatio,height*pixelRatio);
-    drawWithinArea("world","clear",0,0,width*pixelRatio,height*pixelRatio)
+    //ctx.clearRect(0,0,width,height);
+    drawWithinArea("world","clear",0,0,width,height)
 
     if (world.initialized == false) {
         world.initialize();
@@ -38,3 +40,14 @@ function gameLoop() {
 
 
 }
+
+
+function runLoop() {
+    if (canvasInitialized) {
+        gameLoop();
+    }
+}
+
+requestAnimationFrame(function() {
+    runLoop();
+})

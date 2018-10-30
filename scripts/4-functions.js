@@ -7,6 +7,18 @@ world.initialize();
 
 
 
+function updateToolbar() {
+
+    var tbTopPos = drawAreas.toolbar[0] * pixelRatio;
+    var tbRightPos = drawAreas.toolbar[1] * pixelRatio;
+    var tbBottomPos = drawAreas.toolbar[2] * pixelRatio;
+    var tbLeftPos = drawAreas.toolbar[3] * pixelRatio;
+
+    ctx.fillStyle = "#000000";
+    drawWithinArea("toolbar", "fillRect", tbTopPos, tbRightPos, tbBottomPos, tbLeftPos)
+}
+
+
 function drawWithinArea(areaName, drawType, xPos, yPos, xSize, ySize) {
 
     // Get the coordinates of the specified area
@@ -17,10 +29,10 @@ function drawWithinArea(areaName, drawType, xPos, yPos, xSize, ySize) {
 
     // Get the coordinates within which
     // drawing was requested
-    var topDrawPos = yPos + areaTop;
-    var rightDrawPos = xPos + xSize + areaLeft;
-    var bottomDrawPos = yPos + ySize + areaTop;
-    var leftDrawPos = xPos + areaLeft;
+    var topDrawPos = (yPos * pixelRatio) + areaTop;
+    var rightDrawPos = (xPos * pixelRatio) + (xSize * pixelRatio) + areaLeft;
+    var bottomDrawPos = (yPos * pixelRatio) + (ySize * pixelRatio) + areaTop;
+    var leftDrawPos = (xPos * pixelRatio) + areaLeft;
 
     // If item is completely off screen, don't draw it
     if (leftDrawPos > areaRight) {return;}
@@ -90,58 +102,91 @@ function calcCollision(a, b) {
         if (aRightPosProj > bLeftPosProj && aLeftPosProj < bRightPosProj) {
 
             // Skip collision testing if
-            // the first object is anchored
-            // (not sure if this is a good idea yet)
-            if (objB.anchored) {
+            // both object are anchored
+            if (objA.anchored && objB.anchored) {
                 return;
             }
 
-            // The Objects are projected to collied.
+            // The Objects are projected to collide
 
-            if (frames % 100 === 0) {
-                if (this instanceof Player) {
-                    console.log("updating object", this.xSpeed, this.ySpeed);
-                }
+            // Store the objects the current object is touching
+            // this is currently only storing one object at a time
+            objA.touchingObjects.push(b);
+            objB.touchingObjects.push(a);
+
+            //paused = true;
+
+            var objectsOverlapOnY = aBottomPos - 1 > bTopPos && aTopPos + 1 < bBottomPos;
+            var objectsOverlapOnX = aRightPosProj - 1 > bLeftPosProj && aLeftPosProj + 1 < bRightPosProj;
+
+            var objA_Bottom_Touching_objB_Top = objectsOverlapOnX && aBottomPosProj > bTopPosProj && aBottomPosProj < bBottomPosProj;
+            var objA_Top_Touching_objB_Bottom =  objectsOverlapOnX && aTopPosProj < bBottomPosProj && aTopPosProj > bTopPosProj;
+            var objA_Right_Touching_objB_Left = objectsOverlapOnY && aRightPosProj > bLeftPosProj && aRightPosProj < bRightPosProj;
+            var objA_Left_Touching_objB_Right = objectsOverlapOnY && aLeftPosProj < bRightPosProj && aLeftPosProj > bLeftPosProj;
+
+            /*
+            if (objA instanceof Player) {
+                console.log("objA is player");
             }
+            if (objB instanceof Player) {
+                console.log("objB is player");
+            }
+            */
 
-            console.log(objA.xPos,objA.yPos,objA.xPos+objA.width,objA.yPos+objA.height);
-            console.log(objB.xPos,objB.yPos,objB.xPos+objB.width,objB.yPos+objB.height);
-            console.log("");
+            //console.log("objA_Bottom_Touching_objB_Top",objA_Bottom_Touching_objB_Top);
+            //console.log("objA_Top_Touching_objB_Bottom",objA_Top_Touching_objB_Bottom);
+            //console.log("objA_Right_Touching_objB_Left",objA_Right_Touching_objB_Left);
+            //console.log("objA_Left_Touching_objB_Right",objA_Left_Touching_objB_Right);
+            //console.log("");
+           
+            //console.log(objB.touchingObjects);
+            //console.log("player", "L:", objB.xPos.toFixed(4),"T:",objB.yPos.toFixed(4),"R:",(objB.xPos+objB.width).toFixed(4),"B:",(objB.yPos+objB.height).toFixed(4));
+            //console.log("objA  ", "L:", objA.xPos.toFixed(4),"T:",objA.yPos.toFixed(4),"R:",(objA.xPos+objA.width).toFixed(4),"B:",(objA.yPos+objA.height).toFixed(4));
+            //console.log("");
 
-            paused = true;
 
-            // If the bottom of A is touching the top of B
-            if (aBottomPosProj > bTopPosProj && aTopPosProj < bBottomPosProj) {
+            // Maybe a better way to do this
+            // is to track the direction in which the
+            // obstace blocks additional motion
+            // by simulating movement in each direction
+            // and seeing if the overlap increases
+
+            // Maybe also track real or projected object
+            // intrusion and adjust position by that #
+
+            if (objA_Bottom_Touching_objB_Top) {
                 objA.ySpeed = 0;
                 objB.ySpeed = 0;
             }
-
-            if (aRightPosProj > bLeftPosProj && aLeftPosProj < bRightPosProj) {
+            if (objA_Top_Touching_objB_Bottom) {
+                objA.ySpeed = 0;
+                objB.ySpeed = 0;
+            }
+            if (objA_Right_Touching_objB_Left) {
                 objA.xSpeed = 0;
                 objB.xSpeed = 0;
-    
+            }
+            if (objA_Left_Touching_objB_Right) {
+                objA.xSpeed = 0;
+                objB.xSpeed = 0;    
             }
 
 
-
-
-            // If the player has hit their pushingFrames limit
+            // If the player is colliding with something
             // and has let go of the up arrow
             if (!pressedKeys.includes("ArrowUp")) {
                 if (objA instanceof Player) {
-                    objA.yPushingFrames = 0;
+                    if (objA_Bottom_Touching_objB_Top) {
+                        objA.yPushingFrames = 0;
+                    }
                 }
 
                 if (objB instanceof Player) {
-                    objB.yPushingFrames = 0;
+                    if (objA_Top_Touching_objB_Bottom) {
+                        objB.yPushingFrames = 0;
+                    }
                 }
             }
-
-            //objA.touchingObjects.push(b);
-            //objB.touchingObjects.push(a);
-
-            //objA.touchingObjects.push(b);
-            //objB.touchingObjects.push(a);
 
         }
     
@@ -159,7 +204,10 @@ function placeObject() {
 
     world.initialized = false;
 
+}
 
+
+function saveLevel() {
     // Compress the level data
     var levelDataString = JSON.stringify(levelData);
     var compressedLevel = LZString.compress(levelDataString);
@@ -171,6 +219,5 @@ function placeObject() {
     if (logging.localStorage == true) {
         console.log(JSON.parse(LZString.decompress(localStorage.storedLevel)));
     }
+
 }
-
-
