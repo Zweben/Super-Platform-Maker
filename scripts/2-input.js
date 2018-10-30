@@ -51,9 +51,25 @@ function handlePressedKeys() {
                 highPpiEnabled = true;
                 initializeCanvas();
                 break;
-
+            case "b":
+                currentEditorObject = "block";
+                break;
+            case "g":
+                currentEditorObject = "goal";
+                break;
             case "s":
                 saveLevel();
+                break;
+            case "Escape":
+                eraseLevel();
+                $('h1').remove();
+                break;
+            case "r":
+                $('h1').remove();
+                player.xPos = 0;
+                player.yPos = 0;
+                player.xSpeed = 0;
+                player.ySpeed = 0;
                 break;
                 
         }

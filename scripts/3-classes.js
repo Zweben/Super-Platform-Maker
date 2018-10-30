@@ -48,6 +48,22 @@ class World {
 
                         }
 
+                        if(levelData[row][col].objects.includes("goal")) {
+
+                            var goal = new Goal;
+                            var xPos = col * world.cellSize;
+                            var yPos = row * world.cellSize;
+
+                            goal.xPos = xPos;
+                            goal.yPos = yPos;
+                            goal.objectsArrayIndex = objects.length;
+
+                            objects.push(goal);
+
+                            this.initialized = false;
+
+                        }
+
                     }
                 }
 

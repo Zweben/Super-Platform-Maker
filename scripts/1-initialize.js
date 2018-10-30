@@ -30,6 +30,8 @@ var selectedObjectType = 0;
 var storedLevel = [[]];
 var levelData = [];
 var paused = false;
+var currentEditorObject = "block";
+var winScreenShown = false;
 
 var logging = {
     canvas: false,

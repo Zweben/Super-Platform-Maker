@@ -101,6 +101,17 @@ function calcCollision(a, b) {
         // If Objects are also projected to align vertically next frame
         if (aRightPosProj > bLeftPosProj && aLeftPosProj < bRightPosProj) {
 
+            // Detect the player touching the goal
+            var goalTouchingPlayer = objA instanceof Goal && objB instanceof Player;
+            var playerTouchingGoal = objA instanceof Player && objB instanceof Goal;
+
+            if (goalTouchingPlayer || playerTouchingGoal) {
+                if (winScreenShown == false) {
+                    $('body').append("<h1>YOU WIN!</h1>");
+                    winScreenShown = true;
+                }
+            }
+
             // Skip collision testing if
             // both object are anchored
             if (objA.anchored && objB.anchored) {
@@ -200,7 +211,7 @@ function placeObject() {
 
     currentLevelDataCell = levelData[hoveredRow][hoveredCol];
 
-    currentLevelDataCell.objects.push("block");
+    currentLevelDataCell.objects.push(currentEditorObject);
 
     world.initialized = false;
 
@@ -220,4 +231,9 @@ function saveLevel() {
         console.log(JSON.parse(LZString.decompress(localStorage.storedLevel)));
     }
 
+}
+
+function eraseLevel() {
+    levelData = [];
+    world.initialize();
 }
